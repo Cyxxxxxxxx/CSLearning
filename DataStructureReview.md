@@ -16,7 +16,7 @@
 
 ​		数据对象(Data Object)：性质相同的数据元素的集合，是数据的一个子集。
 
-##### 					1.2数据结构：
+##### 					1.2：数据结构：
 
 ​		数据结构(Data Structure)是相互之前存在一种或多种特定关系的数据元素的集合。
 
@@ -58,7 +58,7 @@
 
 ### 	2-LinearTable:
 
-##### 		2.1线性表的定义和特点：
+##### 		2.1：线性表的定义和特点：
 
 ​			定义：有n(n>=0)个数据特性相同的元素构成的有序序列称为线性表。PS:n=0时，称为空表。
 
@@ -191,17 +191,363 @@ Status GetElem(LinkList L,int i,ElemType &e){//在带头结点的单链表中根
 ~~~c
 ListNode * LocateElem(LinkList L,ElemType e){  //在带头节点的单链表中查找值为e的数据元素
     p = l->next  //初始化，p指向首元节点
+	while(p&& p->data!=e) 
+        p= p->next;
+   return p;
+}
+~~~
+
+​					4.插入：
+
+~~~c
+Status ListInsert(LinkList &L,int i,ElemType e){  //在带头结点的单链表中第i个位置插入值为e的新节点
+    p =L;j=0;
+    while(p&&(j<i-1)){
+        p=p->next;
+        ++j;
+    }
+    if (!p||j>i-1) return ERROR;  //i>n+1 或者 i<1
+    s= new ListNode;
+    s->data =e;
+    s->next = p->next;
+    p->next=s;
+    return OK;
+}
+~~~
+
+​					5.删除：
+
+~~~c
+Status ListDelete(LinkList &L,int i){  //在带头结点的单链表中，删除第i个元素
+    p=L;j=0;
+    while((p->next)&&(j<i-1)){
+        p=p->next;
+        ++j;
+    }
     if (!(p->next)||(j>i-1)) return ERROR;
+    q = p->next;
+    p-next=q->next;
+    delete q;
+    return OK;
+}
+~~~
+
+​					6.创建单链表：
+
+​								6.1前查法创建单链表：
+
+~~~c
+void CreateListHead(LinkList &L,int n){ //逆位序输入n个元素的值，建立带头结点的单链表L
+    L= new ListNode;
+    L->next =NULL;
+    for (i=0;i<n;i++){
+        p=new ListNode;
+        cin>>p->data;
+        p->next=L->next;
+        L->next = p;
+    }
+}
+~~~
+
+​								6.2尾插法创建单链表：
+
+~~~c
+void CreateListTail(LinkList &L,int n){  //正位序输入n个元素的值，建立带头结点的单链表L
+    L=new ListNode;
+    L->next=NULL;
+    tail=L;
+    for (i=0;i<n;i++){
+        p=new ListNode;
+        cin>>p->data;
+        p->next = NULL;
+        tail->next = p;
+        tail = p;
+    }
+}
+~~~
+
+##### 		2.4-循环链表： 看书，感觉不考，书上没有再多说明。
+
+##### 		2.5-双向链表：
+
+​		C语言中描述：
+
+~~~c
+//------------双向链表的存储结构---------
+typedef struct DuLNode{
+    ElemType data;
+    struct DulNode *prior;  //指向直接前驱
+    struct DulNode *next;  //指向直接后继
+}DuLNode,*DuLinkList;
+~~~
+
+​		2.5.1:双向链表的插入：
+
+~~~c
+Status DuListInsert(DuLinkList &L,int i,ElemType e){  //在带头结点的双向链表中第i个位置之前插入元素
+    if(!(p=DuLGetElem(L,i))) return ERROR;  //在L中确定第i个元素的位置指针p  p=NULL，第i个数据元素不存在
+    s =new DuLNode;
+    s->data =e;
+    s->prior = p ->prior;
+    p->prior->next = s;
+    s->next = p;
+    p->prior =s;
+    return OK;
+}
+~~~
+
+​		2.5.2:双向链表的删除：
+
+~~~c
+Status DuLListDelete(DuLLinkList &L,int i){ //删除带头结点的双向链表的第i个数据元素
+    if (!(p=DuLGetElem(L,i))) return ERROR;  //在L中确定第i个数据元素的位置指针p p=NULL 第i个数据元素不存在
+    p->prior->next = p->next;
+    p->next-prior = p->prior;
+    delete p;
+    return OK;
+}
+~~~
+
+----
+
+### 	3-Stack、Queue:
+
+#### 		Stack(定义)：栈是一种后进先出(Last In First Out)的线性表。
+
+#### 		Queue(定义)：队列是一种先进先出(First In Frist Out)的线性表。
+
+##### 		3.1：栈的表示和操作：
+
+​		顺序栈的实现：
+
+~~~c
+//----------顺序栈的存储结构--------
+#define MAXSiZE 100   //顺序栈存储空间的初始化分配量
+typedef struct{
+    SElemType *base;  //栈底指针
+    SElemType *top;  //栈顶指针
+    int stacksize;  //栈可用的最大容量
+}SqStack;
+~~~
+
+​				1.初始化：
+
+~~~c
+Status InitStack(SqStack &S){
+    S.base = new SElemType[MAXSIZE];
+    if (!S.base) exit(OVERFLOW);
+    S.top=S.base;
+    S.stacksize = MAXSIZE;
+    return OK;
+}
+~~~
+
+​				2.入栈：
+
+~~~c
+Status Push(SqStack &S,SElemType e){
+    if (S.top=S.base) return ERROR;
+    *S.top++ = e;
+    return OK; 
+}
+~~~
+
+​				3.出栈：
+
+~~~c
+Status Pop(SqStack &S,SElemType &e){
+    if (S.top == S.base) return ERROR;
+    e = *--S.top;
+    return OK;
+}
+~~~
+
+​				4.取栈顶元素：
+
+~~~c
+SElemType GetTop(SqStack S){
+    if (S.top != S.base)
+        return *(S.top-1);
 }
 ~~~
 
 
 
+​		链栈的实现：
+
+~~~c
+//----------链栈的存储结构------------
+typedef struct StackNode{
+    ElemType data;
+    struct StackNode *next;
+}StackNode,*LinkStack;
+~~~
+
+​					1.初始化：
+
+~~~c
+Status InitStack(LinkStack &S){
+	S=NULL;
+	return OK;
+}
+~~~
+
+​					2.入栈：
+
+~~~c
+Status Push(LinkStack &S,SElemType e){
+    p = new StackNode;
+    p->data = e;
+    p->next = S;
+    S = p;
+    return OK;
+}
+~~~
+
+​					3.出栈：
+
+~~~c
+Status Pop (LinkStack &S,SElemType &e){
+    if (S ==Null) return ERROR;
+    e = S->data;
+    p=S;
+    S=S->next;
+    delete p;
+    return OK;
+}
+~~~
+
+​					4.取栈顶元素：
+
+~~~c
+SElemType GetTop(LinkStack S){
+    if (S!=NULL)
+        return S-data;
+}
+~~~
 
 
-----
 
-### 	3-Stack、Queue:
+##### 		3.2：队列的表示和操作：
+
+​		循环队列(顺序存储)：
+
+~~~c
+//-----------队列的顺序存储结构-------
+typedef struct{
+    QElemType *base;
+    int front;
+    int rear;
+}SqQueue;
+~~~
+
+​				1.初始化：
+
+~~~~c
+Status InitQueue(SqQueue &Q){
+    Q.base = new QElemType[MAXQSIZE];
+    if (!Q.base) exit(OVERFLOW);
+    Q.fornt = Q.rear;
+    return OK;
+}
+~~~~
+
+​				2.求队列长度：
+
+~~~c
+int QueueLength(SqQueue Q){
+    return (Q.rear - Q.front +MAXSIZE)%MAXSIZE;
+}
+~~~
+
+​				3.入队：
+
+~~~~c
+Status EnQueue(SqQueue &Q,QElemType e){
+    if ((Q.rear+1)%MAXSIZE==Q.front) return ERROR;
+    Q.base[Q.reat]=e;
+    Q.rear = (Q.rear +1)%MAXSIZE;
+    return OK;
+}
+~~~~
+
+​				4.出队：
+
+~~~c
+Status DeQueue(SqQueue &Q,QElemType &e){
+    if(Q.front == Q.rear) return ERROR;
+    e = Q.base[Q.front];
+    Q.front = (Q.front+1)%MAXQSIZE;
+    return OK;
+}
+~~~
+
+​				5.取对头元素：
+
+~~~c
+SElemType GetHead(SqQueue Q){
+    if (Q.rear != Q.front) return Q.base[Q.front];
+}
+~~~
+
+
+
+​		链队的实现：
+
+~~~c++
+//-----------队列的链式存储结构----------
+typedef struct QNode{
+    QElemType data;
+    struct QNode *next;
+}QNode, *QueuePtr;
+~~~
+
+​					1.初始化：
+
+ ~~~C
+ Status InitQueue(LinkStack &Q){
+     Q.front = Q.rear = new QNode;
+     Q.front->next = NULL;
+     return OK;
+ }
+ ~~~
+
+​					2.入队：
+
+~~~c
+Status EnQueue(LinkQueue &Q,QElemType e){
+    p= new QNode;
+    p->data = e;
+    p->next = NUll; Q.rear->next = p;
+    Q.rear  = p;
+    return OK;
+}
+~~~
+
+​					3.出队：
+
+~~~c
+Status DeQueue(LinkQueue &Q,QElemType &e){
+    if(Q.front == Q.rear) return ERROR;
+    p=Q.front->next;
+    e = p->data;
+    Q.front->next = p->next;
+    if(Q.rear ==p) Q.rear = Q.front;
+    delete p;
+    return OK;
+}
+~~~
+
+​					4.取链队元素：
+
+~~~c++
+SElelmType GetHead(LinkQueue Q){
+    if (Q.front == Q.rear) 
+        return Q.front->next->data;
+}
+~~~
+
+​           
 
 ----
 
@@ -223,3 +569,4 @@ ListNode * LocateElem(LinkList L,ElemType e){  //在带头节点的单链表中�
 
 ### 	8-Sequence:
 
+​	
